@@ -1,0 +1,463 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1326C5252FCC13BC00EEDD95 /* CelestiaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C5242FCC13BC00EEDD95 /* CelestiaApp.swift */; };
+		1326C5292FCC13C000EEDD95 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1326C5282FCC13C000EEDD95 /* Assets.xcassets */; };
+		1326C52C2FCC13C000EEDD95 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1326C52B2FCC13C000EEDD95 /* Preview Assets.xcassets */; };
+		1326C53F2FCC149E00EEDD95 /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C53B2FCC149D00EEDD95 /* DownloadsView.swift */; };
+		1326C5402FCC149E00EEDD95 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C53C2FCC149D00EEDD95 /* LibraryView.swift */; };
+		1326C5412FCC149E00EEDD95 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C53D2FCC149D00EEDD95 /* HomeView.swift */; };
+		1326C5422FCC149E00EEDD95 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C53E2FCC149E00EEDD95 /* SearchView.swift */; };
+		1326C5462FCC183A00EEDD95 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1326C5452FCC183A00EEDD95 /* Kingfisher */; };
+		1326C5492FCC184500EEDD95 /* AniListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C5482FCC184500EEDD95 /* AniListService.swift */; };
+		1326C54C2FCC184A00EEDD95 /* AniListModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C54B2FCC184A00EEDD95 /* AniListModels.swift */; };
+		1326C5512FCC185200EEDD95 /* SlimAnimeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C54E2FCC185200EEDD95 /* SlimAnimeCard.swift */; };
+		1326C5522FCC185200EEDD95 /* RemoteImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C54F2FCC185200EEDD95 /* RemoteImageView.swift */; };
+		1326C5532FCC185200EEDD95 /* AiringAnimeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C5502FCC185200EEDD95 /* AiringAnimeCard.swift */; };
+		1326C5552FCC21A700EEDD95 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C5542FCC21A700EEDD95 /* SettingsView.swift */; };
+		1326C5572FCC21CD00EEDD95 /* SettingsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C5562FCC21CD00EEDD95 /* SettingsKeys.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1326C5212FCC13BC00EEDD95 /* Celestia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Celestia.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1326C5242FCC13BC00EEDD95 /* CelestiaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelestiaApp.swift; sourceTree = "<group>"; };
+		1326C5282FCC13C000EEDD95 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1326C52B2FCC13C000EEDD95 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1326C53B2FCC149D00EEDD95 /* DownloadsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
+		1326C53C2FCC149D00EEDD95 /* LibraryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		1326C53D2FCC149D00EEDD95 /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1326C53E2FCC149E00EEDD95 /* SearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		1326C5432FCC14D900EEDD95 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1326C5482FCC184500EEDD95 /* AniListService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AniListService.swift; sourceTree = "<group>"; };
+		1326C54B2FCC184A00EEDD95 /* AniListModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AniListModels.swift; sourceTree = "<group>"; };
+		1326C54E2FCC185200EEDD95 /* SlimAnimeCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SlimAnimeCard.swift; sourceTree = "<group>"; };
+		1326C54F2FCC185200EEDD95 /* RemoteImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteImageView.swift; sourceTree = "<group>"; };
+		1326C5502FCC185200EEDD95 /* AiringAnimeCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AiringAnimeCard.swift; sourceTree = "<group>"; };
+		1326C5542FCC21A700EEDD95 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1326C5562FCC21CD00EEDD95 /* SettingsKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsKeys.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1326C51E2FCC13BC00EEDD95 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1326C5462FCC183A00EEDD95 /* Kingfisher in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1326C5182FCC13BC00EEDD95 = {
+			isa = PBXGroup;
+			children = (
+				1326C5232FCC13BC00EEDD95 /* Celestia */,
+				1326C5222FCC13BC00EEDD95 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1326C5222FCC13BC00EEDD95 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1326C5212FCC13BC00EEDD95 /* Celestia.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1326C5232FCC13BC00EEDD95 /* Celestia */ = {
+			isa = PBXGroup;
+			children = (
+				1326C5432FCC14D900EEDD95 /* Info.plist */,
+				1326C5472FCC184500EEDD95 /* Services */,
+				1326C5322FCC147800EEDD95 /* Views */,
+				1326C5242FCC13BC00EEDD95 /* CelestiaApp.swift */,
+				1326C5282FCC13C000EEDD95 /* Assets.xcassets */,
+				1326C52A2FCC13C000EEDD95 /* Preview Content */,
+			);
+			path = Celestia;
+			sourceTree = "<group>";
+		};
+		1326C52A2FCC13C000EEDD95 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				1326C52B2FCC13C000EEDD95 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1326C5322FCC147800EEDD95 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1326C54D2FCC185200EEDD95 /* Components */,
+				1326C53B2FCC149D00EEDD95 /* DownloadsView.swift */,
+				1326C53D2FCC149D00EEDD95 /* HomeView.swift */,
+				1326C53C2FCC149D00EEDD95 /* LibraryView.swift */,
+				1326C53E2FCC149E00EEDD95 /* SearchView.swift */,
+				1326C5542FCC21A700EEDD95 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1326C5472FCC184500EEDD95 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				1326C54A2FCC184A00EEDD95 /* Models */,
+				1326C5482FCC184500EEDD95 /* AniListService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		1326C54A2FCC184A00EEDD95 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1326C54B2FCC184A00EEDD95 /* AniListModels.swift */,
+				1326C5562FCC21CD00EEDD95 /* SettingsKeys.swift */,
+			);
+			name = Models;
+			path = Celestia/Models;
+			sourceTree = SOURCE_ROOT;
+		};
+		1326C54D2FCC185200EEDD95 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				1326C54E2FCC185200EEDD95 /* SlimAnimeCard.swift */,
+				1326C5502FCC185200EEDD95 /* AiringAnimeCard.swift */,
+				1326C54F2FCC185200EEDD95 /* RemoteImageView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1326C5202FCC13BC00EEDD95 /* Celestia */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1326C52F2FCC13C000EEDD95 /* Build configuration list for PBXNativeTarget "Celestia" */;
+			buildPhases = (
+				1326C51D2FCC13BC00EEDD95 /* Sources */,
+				1326C51E2FCC13BC00EEDD95 /* Frameworks */,
+				1326C51F2FCC13BC00EEDD95 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Celestia;
+			packageProductDependencies = (
+				1326C5452FCC183A00EEDD95 /* Kingfisher */,
+			);
+			productName = Celestia;
+			productReference = 1326C5212FCC13BC00EEDD95 /* Celestia.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1326C5192FCC13BC00EEDD95 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					1326C5202FCC13BC00EEDD95 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = 1326C51C2FCC13BC00EEDD95 /* Build configuration list for PBXProject "Celestia" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1326C5182FCC13BC00EEDD95;
+			packageReferences = (
+				1326C5442FCC183A00EEDD95 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
+			productRefGroup = 1326C5222FCC13BC00EEDD95 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1326C5202FCC13BC00EEDD95 /* Celestia */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1326C51F2FCC13BC00EEDD95 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1326C52C2FCC13C000EEDD95 /* Preview Assets.xcassets in Resources */,
+				1326C5292FCC13C000EEDD95 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1326C51D2FCC13BC00EEDD95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1326C5402FCC149E00EEDD95 /* LibraryView.swift in Sources */,
+				1326C5522FCC185200EEDD95 /* RemoteImageView.swift in Sources */,
+				1326C5572FCC21CD00EEDD95 /* SettingsKeys.swift in Sources */,
+				1326C5532FCC185200EEDD95 /* AiringAnimeCard.swift in Sources */,
+				1326C53F2FCC149E00EEDD95 /* DownloadsView.swift in Sources */,
+				1326C5412FCC149E00EEDD95 /* HomeView.swift in Sources */,
+				1326C5422FCC149E00EEDD95 /* SearchView.swift in Sources */,
+				1326C54C2FCC184A00EEDD95 /* AniListModels.swift in Sources */,
+				1326C5492FCC184500EEDD95 /* AniListService.swift in Sources */,
+				1326C5252FCC13BC00EEDD95 /* CelestiaApp.swift in Sources */,
+				1326C5512FCC185200EEDD95 /* SlimAnimeCard.swift in Sources */,
+				1326C5552FCC21A700EEDD95 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1326C52D2FCC13C000EEDD95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1326C52E2FCC13C000EEDD95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1326C5302FCC13C000EEDD95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Celestia/Preview Content\"";
+				DEVELOPMENT_TEAM = USF65A4WGS;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Celestia/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.Celestia;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1326C5312FCC13C000EEDD95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Celestia/Preview Content\"";
+				DEVELOPMENT_TEAM = USF65A4WGS;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Celestia/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.cranci.Celestia;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1326C51C2FCC13BC00EEDD95 /* Build configuration list for PBXProject "Celestia" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1326C52D2FCC13C000EEDD95 /* Debug */,
+				1326C52E2FCC13C000EEDD95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1326C52F2FCC13C000EEDD95 /* Build configuration list for PBXNativeTarget "Celestia" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1326C5302FCC13C000EEDD95 /* Debug */,
+				1326C5312FCC13C000EEDD95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1326C5442FCC183A00EEDD95 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1326C5452FCC183A00EEDD95 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1326C5442FCC183A00EEDD95 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 1326C5192FCC13BC00EEDD95 /* Project object */;
+}
