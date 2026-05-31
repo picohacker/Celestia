@@ -20,7 +20,7 @@ extension AnimeSummary {
     var displayTitle: String {
         title.userPreferred ?? title.romaji ?? title.english ?? title.native ?? "Unknown"
     }
-
+    
     var imageURL: URL? {
         let urlString = coverImage.extraLarge ?? coverImage.large
         return urlString.flatMap(URL.init(string:))

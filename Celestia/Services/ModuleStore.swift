@@ -135,14 +135,14 @@ private extension ModuleStore {
 
 private extension ModuleStore {
     func fetchPayload(from url: URL) async throws -> ModuleSourcePayload {
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await URLSession.custom.data(from: url)
         return try decoder.decode(ModuleSourcePayload.self, from: data)
     }
     
     func fetchScript(for payload: ModuleSourcePayload, jsonURL: String) async throws -> (String, Data, Data) {
-        let (jsonData, _) = try await URLSession.shared.data(from: try validatedURL(from: jsonURL))
+        let (jsonData, _) = try await URLSession.custom.data(from: try validatedURL(from: jsonURL))
         let scriptURL = try validatedURL(from: payload.scriptUrl)
-        let (scriptData, _) = try await URLSession.shared.data(from: scriptURL)
+        let (scriptData, _) = try await URLSession.custom.data(from: scriptURL)
         
         guard let scriptString = String(data: scriptData, encoding: .utf8),
               !scriptString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

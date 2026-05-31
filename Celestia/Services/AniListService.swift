@@ -104,7 +104,7 @@ final class AniListService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = body
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.custom.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
               200..<300 ~= httpResponse.statusCode else {
             throw AniListServiceError.invalidResponse
@@ -167,6 +167,8 @@ final class AniListService {
     private var includeAdultContent: Bool {
         UserDefaults.standard.bool(forKey: SettingsKeys.includeAdultContent)
     }
+    
+    // MARK: - GraphQL
     
     private let trendingQueryFiltered = """
     query {

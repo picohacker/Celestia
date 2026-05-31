@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+private enum LoadState {
+    case idle
+    case loading
+    case failed(String)
+}
+
 struct HomeView: View {
     @State private var loadState: LoadState = .idle
     @State private var airingAnime: [AnimeSummary] = []
@@ -174,10 +180,4 @@ struct HomeView: View {
             loadState = .failed("Failed to load AniList data. Please try again.")
         }
     }
-}
-
-private enum LoadState {
-    case idle
-    case loading
-    case failed(String)
 }

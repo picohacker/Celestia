@@ -13,16 +13,16 @@ final class ModuleRuntime {
     private let context: JSContext
     private let contextQueue: DispatchQueue
     private var lastException: JSValue?
-
+    
     init(module: ModuleDefinition) throws {
         self.module = module
         self.contextQueue = DispatchQueue(label: "celestia.module.context.\(module.id)")
-
+        
         guard let context = JSContext() else {
             throw RuntimeError.contextCreationFailed
         }
         self.context = context
-
+        
         var initError: Error?
         contextQueue.sync {
             do {
@@ -35,21 +35,21 @@ final class ModuleRuntime {
         }
         if let initError { throw initError }
     }
-
+    
     // MARK: - Public API
-
+    
     func searchResults(keyword: String) async throws -> Any {
         try await call(function: .searchResults, argument: keyword)
     }
-
+    
     func extractDetails(url: String) async throws -> Any {
         try await call(function: .extractDetails, argument: url)
     }
-
+    
     func extractEpisodes(url: String) async throws -> Any {
         try await call(function: .extractEpisodes, argument: url)
     }
-
+    
     func extractStreamUrl(url: String) async throws -> Any {
         try await call(function: .extractStreamUrl, argument: url)
     }
@@ -64,14 +64,14 @@ private extension ModuleRuntime {
         case extractEpisodes
         case extractStreamUrl
     }
-
+    
     enum RuntimeError: LocalizedError {
         case contextCreationFailed
         case missingExport(String)
         case javaScriptException(String)
         case invalidURL(String)
         case invalidFunctionResult(String)
-
+        
         var errorDescription: String? {
             switch self {
             case .contextCreationFailed:          return "Unable to create JavaScript context."
@@ -93,7 +93,7 @@ private extension ModuleRuntime {
             let name = self?.module.name ?? "Unknown"
             print("[Module \(name)] JS exception: \(exception?.toString() ?? "Unknown")")
         }
-
+        
         setupConsole()
         setupBase64()
         setupFetch()
@@ -101,7 +101,7 @@ private extension ModuleRuntime {
         setupFetchV2Shim()
         setupScrapingUtilities()
     }
-
+    
     func validateExports() throws {
         for fn in ModuleFunction.allCases {
             let value = context.objectForKeyedSubscript(fn.rawValue as NSString)
@@ -110,7 +110,7 @@ private extension ModuleRuntime {
             }
         }
     }
-
+    
     func evaluateScript(_ script: String) throws {
         context.evaluateScript(script)
         if let exception = lastException {
@@ -134,7 +134,7 @@ private extension ModuleRuntime {
         context.setObject(console, forKeyedSubscript: "console" as NSString)
         context.setObject(log, forKeyedSubscript: "log" as NSString)
     }
-
+    
     func setupBase64() {
         let btoa: @convention(block) (String) -> String? = { str in
             str.data(using: .utf8)?.base64EncodedString()
@@ -153,13 +153,13 @@ private extension ModuleRuntime {
     func setupFetch() {
         let ctx = context
         let queue = contextQueue
-
+        
         let fetchBlock: @convention(block) (String, JSValue?) -> JSValue = { urlString, options in
             JSValue(newPromiseIn: ctx) { resolve, reject in
                 Task {
                     do {
-                        var request = try Self.buildRequest(urlString: urlString, options: options)
-                        let (data, response) = try await URLSession.shared.data(for: request)
+                        let request = try Self.buildRequest(urlString: urlString, options: options)
+                        let (data, response) = try await URLSession.custom.data(for: request)
                         let responseValue = Self.buildFetchResponse(data: data, response: response, context: ctx)
                         queue.async { resolve?.call(withArguments: [responseValue as Any]) }
                     } catch {
@@ -168,17 +168,17 @@ private extension ModuleRuntime {
                 }
             } ?? JSValue(undefinedIn: ctx)
         }
-
+        
         context.setObject(fetchBlock, forKeyedSubscript: "fetch" as NSString)
     }
-
+    
     static func buildRequest(urlString: String, options: JSValue?) throws -> URLRequest {
         guard let url = URL(string: urlString) else {
             throw RuntimeError.invalidURL(urlString)
         }
         var request = URLRequest(url: url)
         guard let options, !options.isUndefined, !options.isNull else { return request }
-
+        
         if let method = options.forProperty("method")?.toString() {
             request.httpMethod = method
         }
@@ -190,16 +190,16 @@ private extension ModuleRuntime {
         }
         return request
     }
-
+    
     static func buildFetchResponse(data: Data, response: URLResponse, context: JSContext) -> JSValue? {
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         let bodyString = String(data: data, encoding: .utf8) ?? ""
         let jsonObject = try? JSONSerialization.jsonObject(with: data)
-
+        
         let obj = JSValue(newObjectIn: context)
         obj?.setValue(status, forProperty: "status")
         obj?.setValue((200..<300).contains(status), forProperty: "ok")
-
+        
         let text: @convention(block) () -> JSValue = {
             JSValue(newPromiseIn: context) { resolve, _ in
                 resolve?.call(withArguments: [bodyString])
@@ -211,7 +211,7 @@ private extension ModuleRuntime {
                 else { reject?.call(withArguments: ["Invalid JSON"]) }
             } ?? JSValue(undefinedIn: context)
         }
-
+        
         obj?.setValue(text, forProperty: "text")
         obj?.setValue(json, forProperty: "json")
         return obj
@@ -247,51 +247,51 @@ private extension ModuleRuntime {
         }
         """)
     }
-
+    
     func setupFetchV2Native() {
         let queue = contextQueue
-
+        
         let block: @convention(block) (String, Any?, String?, String?, ObjCBool, String?, JSValue, JSValue) -> Void = {
             [weak self] urlString, headersAny, method, body, redirect, encoding, resolve, reject in
             guard let self else { return }
-
+            
             guard let url = URL(string: urlString) else {
                 queue.async { resolve.call(withArguments: [["error": "Invalid URL"]]) }
                 return
             }
-
+            
             let httpMethod = method ?? "GET"
             let bodyIsEmpty = body == nil || body?.isEmpty == true || body == "null" || body == "undefined"
-
+            
             if httpMethod == "GET" && !bodyIsEmpty {
                 queue.async { resolve.call(withArguments: [["error": "GET request must not have a body"]]) }
                 return
             }
-
+            
             var request = URLRequest(url: url)
             request.httpMethod = httpMethod
-
+            
             if let headers = Self.parseHeaders(headersAny) {
                 headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
             }
             if httpMethod != "GET", let body, !bodyIsEmpty {
                 request.httpBody = body.data(using: .utf8)
             }
-
+            
             let encoding = self.encodingFromString(encoding)
             let handler = FetchV2RedirectHandler(allowRedirects: redirect.boolValue)
             let session = URLSession(configuration: .ephemeral, delegate: handler, delegateQueue: nil)
-
+            
             session.downloadTask(with: request) { tempURL, response, error in
                 defer { session.finishTasksAndInvalidate() }
-
+                
                 let callResolve: ([String: Any]) -> Void = { dict in
                     queue.async { if !resolve.isUndefined { resolve.call(withArguments: [dict]) } }
                 }
-
+                
                 if let error { callResolve(["error": error.localizedDescription]); return }
                 guard let tempURL else { callResolve(["error": "No data"]); return }
-
+                
                 let headers = (response as? HTTPURLResponse)
                     .map { Self.stringifiedHeaders($0.allHeaderFields) } ?? [:]
                 var result: [String: Any] = [
@@ -299,31 +299,31 @@ private extension ModuleRuntime {
                     "headers": headers,
                     "body": ""
                 ]
-
+                
                 do {
                     let data = try Data(contentsOf: tempURL)
                     guard data.count <= 10_000_000 else {
                         callResolve(["error": "Response exceeds maximum size"]); return
                     }
                     result["body"] = String(data: data, encoding: encoding)
-                        ?? String(data: data, encoding: .utf8)
-                        ?? ""
+                    ?? String(data: data, encoding: .utf8)
+                    ?? ""
                     callResolve(result)
                 } catch {
                     callResolve(["error": "Error reading downloaded file"])
                 }
             }.resume()
         }
-
+        
         context.setObject(block, forKeyedSubscript: "fetchV2Native" as NSString)
     }
-
+    
     static func parseHeaders(_ raw: Any?) -> [String: String]? {
         let dict: [AnyHashable: Any]?
         if let d = raw as? [String: Any]       { dict = d }
         else if let d = raw as? [AnyHashable: Any] { dict = d }
         else { return nil }
-
+        
         guard let dict else { return nil }
         var result: [String: String] = [:]
         for (key, value) in dict {
@@ -334,7 +334,7 @@ private extension ModuleRuntime {
         }
         return result.isEmpty ? nil : result
     }
-
+    
     static func stringifiedHeaders(_ fields: [AnyHashable: Any]) -> [String: String] {
         var result: [String: String] = [:]
         for (key, value) in fields {
@@ -343,7 +343,7 @@ private extension ModuleRuntime {
         }
         return result
     }
-
+    
     func encodingFromString(_ string: String?) -> String.Encoding {
         switch string?.lowercased() {
         case "windows-1251", "cp1251":  return .windowsCP1251
@@ -406,13 +406,13 @@ private extension ModuleRuntime {
                 do {
                     let jsFunction = self.context.objectForKeyedSubscript(fn.rawValue as NSString)
                     let result = jsFunction?.call(withArguments: [argument])
-
+                    
                     if let exception = self.lastException {
                         self.lastException = nil
                         throw RuntimeError.javaScriptException(exception.toString() ?? "Unknown")
                     }
                     guard let result else { throw RuntimeError.invalidFunctionResult(fn.rawValue) }
-
+                    
                     if self.isPromise(result) {
                         self.resolvePromise(result, functionName: fn.rawValue, continuation: continuation)
                     } else {
@@ -424,7 +424,7 @@ private extension ModuleRuntime {
             }
         }
     }
-
+    
     func resolvePromise(_ promise: JSValue, functionName: String, continuation: CheckedContinuation<Any, Error>) {
         let onFulfilled: @convention(block) (JSValue) -> Void = { [weak self] value in
             do {
@@ -439,11 +439,11 @@ private extension ModuleRuntime {
         promise.invokeMethod("then", withArguments: [onFulfilled])
         promise.invokeMethod("catch", withArguments: [onRejected])
     }
-
+    
     func isPromise(_ value: JSValue) -> Bool {
         value.isObject && value.forProperty("then")?.isObject == true
     }
-
+    
     func normalizeOutput(_ value: JSValue) throws -> Any {
         if value.isUndefined || value.isNull { return NSNull() }
         return value.toObject() ?? value.toString() ?? NSNull()
@@ -454,18 +454,12 @@ private extension ModuleRuntime {
 
 private final class FetchV2RedirectHandler: NSObject, URLSessionTaskDelegate {
     private let allowRedirects: Bool
-
+    
     init(allowRedirects: Bool) {
         self.allowRedirects = allowRedirects
     }
-
-    func urlSession(
-        _ session: URLSession,
-        task: URLSessionTask,
-        willPerformHTTPRedirection response: HTTPURLResponse,
-        newRequest request: URLRequest,
-        completionHandler: @escaping (URLRequest?) -> Void
-    ) {
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         completionHandler(allowRedirects ? request : nil)
     }
 }
