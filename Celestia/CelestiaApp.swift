@@ -32,6 +32,7 @@ struct CelestiaApp: App {
                         Label("Search", systemImage: "magnifyingglass")
                     }
             }
+            .environmentObject(ModuleStore.shared)
         }
     }
 }

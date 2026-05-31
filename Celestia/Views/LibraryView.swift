@@ -29,5 +29,6 @@ private extension LibraryView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+        .background(Color("SecondaryBackgroundColor"))
     }
 }

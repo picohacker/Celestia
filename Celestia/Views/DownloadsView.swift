@@ -28,5 +28,6 @@ private extension DownloadsView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+        .background(Color("SecondaryBackgroundColor"))
     }
 }
