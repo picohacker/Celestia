@@ -89,6 +89,18 @@ final class ModuleStore: ObservableObject {
             return all
         }
     }
+
+    func fetchMediaDetail(for item: ModuleSearchItem) async throws -> ModuleMediaDetail {
+        guard let record = records.first(where: { $0.name == item.moduleName }) else {
+            throw ModuleStoreError.moduleNotFound(item.moduleName)
+        }
+
+        let runtime = try loadOrCacheRuntime(for: record)
+        let details = try await runtime.extractDetails(url: item.href)
+        let episodes = try? await runtime.extractEpisodes(url: item.href)
+
+        return ModuleMediaDetail.parse(details: details, episodes: episodes, fallbackItem: item)
+    }
 }
 
 // MARK: - Persistence
@@ -248,12 +260,14 @@ private extension ModuleStore {
         case invalidURL(String)
         case missingScriptFile(String)
         case invalidScriptEncoding
+        case moduleNotFound(String)
         
         var errorDescription: String? {
             switch self {
             case .invalidURL(let url):         return "Invalid URL: \(url)"
             case .missingScriptFile(let name): return "Missing script file for module: \(name)"
             case .invalidScriptEncoding:       return "Script file is not valid UTF-8."
+            case .moduleNotFound(let name):    return "Unable to find a module named \(name)."
             }
         }
     }

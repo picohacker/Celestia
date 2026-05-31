@@ -17,6 +17,8 @@ struct SearchResultsView: View {
     @State private var errorMessage: String?
     @State private var isShowingModulePicker = false
     @State private var activeLoadId = UUID()
+    @State private var selectedResult: ModuleSearchItem?
+    @State private var hasLoaded = false
     
     var body: some View {
         ZStack {
@@ -34,6 +36,15 @@ struct SearchResultsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle(query)
         .background(backgroundColor)
+        .navigationDestination(isPresented: Binding(
+            get: { selectedResult != nil },
+            set: { if !$0 { selectedResult = nil } }
+        )) {
+            if let item = selectedResult {
+                MediaDetailView(item: item)
+                    .environmentObject(moduleStore)
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -58,7 +69,14 @@ struct SearchResultsView: View {
                 Button(record.name) { selectModule(id: record.id) }
             }
         }
-        .task { await loadResults() }
+        .onAppear {
+            guard !hasLoaded else { return }
+            hasLoaded = true
+            Task { await loadResults() }
+        }
+        .onChange(of: selectedModuleId) { _ in
+            Task { await loadResults() }
+        }
     }
 }
 
@@ -82,7 +100,12 @@ private extension SearchResultsView {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 LazyHStack(alignment: .top, spacing: 14) {
                                     ForEach(group.items) { entry in
-                                        SlimAnimeCard(title: entry.title, imageURL: entry.imageURL)
+                                        Button {
+                                            selectedResult = entry
+                                        } label: {
+                                            SlimAnimeCard(title: entry.title, imageURL: entry.imageURL)
+                                        }
+                                        .buttonStyle(.plain)
                                     }
                                 }
                                 .padding(.horizontal, 16)
@@ -122,22 +145,27 @@ private extension SearchResultsView {
             } else {
                 Section {
                     ForEach(results) { entry in
-                        HStack(spacing: 12) {
-                            RemoteImageView(url: entry.imageURL, cornerRadius: 0)
-                                .frame(width: 86, height: 130)
-                            
-                            Text(entry.title)
-                                .font(.system(size: 15, weight: .regular))
-                                .foregroundStyle(.primary)
-                                .lineLimit(3)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(.secondary)
+                        Button {
+                            selectedResult = entry
+                        } label: {
+                            HStack(spacing: 12) {
+                                RemoteImageView(url: entry.imageURL, cornerRadius: 0)
+                                    .frame(width: 86, height: 130)
+                                
+                                Text(entry.title)
+                                    .font(.system(size: 15, weight: .regular))
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(3)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 6)
                         }
-                        .padding(.vertical, 6)
+                        .buttonStyle(.plain)
                         .listRowBackground(Color("SecondaryBackgroundColor"))
                     }
                 }
