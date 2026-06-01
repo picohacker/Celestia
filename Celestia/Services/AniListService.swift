@@ -90,6 +90,29 @@ final class AniListService {
         let response = try decoder.decode(GraphQLResponse<DetailsData>.self, from: data)
         return response.data.Media
     }
+
+    func fetchID(byTitle title: String) async throws -> Int {
+      let query = """
+      query($search: String) {
+        Media(search: $search, type: ANIME) {
+        id
+        }
+      }
+      """
+
+      let variables: [String: Any] = ["search": title]
+      let data = try await performRequest(query: query, variables: variables)
+      let wrapper = try decoder.decode(GraphQLResponse<MediaIdData>.self, from: data)
+      return wrapper.data.Media.id
+    }
+
+    private struct MediaIdData: Decodable {
+      let Media: MediaId
+    }
+
+    private struct MediaId: Decodable {
+      let id: Int
+    }
     
     private func performRequest(query: String, variables: [String: Any]? = nil) async throws -> Data {
         var payload: [String: Any] = ["query": query]

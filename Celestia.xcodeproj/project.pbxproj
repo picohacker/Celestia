@@ -29,6 +29,7 @@
 		1340AA112FCE2A0100A1B2C3 /* ModuleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA0F2FCE2A0100A1B2C3 /* ModuleModels.swift */; };
 		1340AA142FCE2B1A00A1B2C3 /* ModuleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA132FCE2B1A00A1B2C3 /* ModuleStore.swift */; };
 		1340AA162FCE2E1F00A1B2C3 /* SearchResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA152FCE2E1F00A1B2C3 /* SearchResultsView.swift */; };
+		13B21F702FCCC5AE00394B56 /* CircularProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B21F6F2FCCC5AE00394B56 /* CircularProgressBar.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		1340AA0F2FCE2A0100A1B2C3 /* ModuleModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleModels.swift; sourceTree = "<group>"; };
 		1340AA132FCE2B1A00A1B2C3 /* ModuleStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleStore.swift; sourceTree = "<group>"; };
 		1340AA152FCE2E1F00A1B2C3 /* SearchResultsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsView.swift; sourceTree = "<group>"; };
+		13B21F6F2FCCC5AE00394B56 /* CircularProgressBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				1326C54E2FCC185200EEDD95 /* SlimAnimeCard.swift */,
+				13B21F6F2FCCC5AE00394B56 /* CircularProgressBar.swift */,
 				1326C5502FCC185200EEDD95 /* AiringAnimeCard.swift */,
 				1326C54F2FCC185200EEDD95 /* RemoteImageView.swift */,
 			);
@@ -258,6 +261,7 @@
 				1326C5252FCC13BC00EEDD95 /* CelestiaApp.swift in Sources */,
 				1326C5512FCC185200EEDD95 /* SlimAnimeCard.swift in Sources */,
 				1326C5552FCC21A700EEDD95 /* SettingsView.swift in Sources */,
+				13B21F702FCCC5AE00394B56 /* CircularProgressBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

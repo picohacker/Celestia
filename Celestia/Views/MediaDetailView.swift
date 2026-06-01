@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 private enum MediaDetailLoadState {
     case idle
@@ -24,6 +25,9 @@ struct MediaDetailView: View {
     @State private var isFavorite = false
     @State private var episodeRange: ClosedRange<Int> = 0...99
     @State private var selectedRange = "1-100"
+    @State private var episodeImages: [Int: URL] = [:]
+    @State private var isFetchingEpisodeImages: Bool = false
+    @State private var episodeTitles: [Int: String] = [:]
     
     var body: some View {
         Group {
@@ -47,13 +51,13 @@ private extension MediaDetailView {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 headerRow(detail)
-
+                
                 if !detail.synopsis.isEmpty {
                     synopsisRow(detail)
                 }
-
+                
                 actionRow
-
+                
                 episodesSection(detail)
             }
             .padding(16)
@@ -64,22 +68,22 @@ private extension MediaDetailView {
         HStack(alignment: .top, spacing: 10) {
             RemoteImageView(url: detail.imageURL, cornerRadius: 10)
                 .frame(width: 110, height: 160)
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(detail.title)
                     .font(.system(size: 21, weight: .bold))
                     .foregroundStyle(.primary)
                     .lineLimit(4)
-
+                
                 if !detail.aliases.isEmpty {
                     Text(detail.aliases.joined(separator: " • "))
                         .font(.system(size: 13))
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
-
+                
                 Spacer(minLength: 6)
-
+                
                 HStack(spacing: 12) {
                     Button { } label: {
                         Image(systemName: "ellipsis.circle")
@@ -87,7 +91,7 @@ private extension MediaDetailView {
                             .frame(width: 20, height: 20)
                     }
                     .buttonStyle(.plain)
-
+                    
                     Button { } label: {
                         Image(systemName: "safari")
                             .resizable()
@@ -106,9 +110,9 @@ private extension MediaDetailView {
             HStack(spacing: 4) {
                 Text("Synopsis")
                     .font(.system(size: 16, weight: .bold))
-
+                
                 Spacer()
-
+                
                 if shouldShowSynopsisToggle(detail.synopsis) {
                     Button(isSynopsisExpanded ? "Less" : "More") {
                         isSynopsisExpanded.toggle()
@@ -118,14 +122,14 @@ private extension MediaDetailView {
                     .foregroundColor(.accentColor)
                 }
             }
-
+            
             Text(detail.synopsis)
                 .lineLimit(isSynopsisExpanded ? nil : 4)
                 .font(.system(size: 14))
                 .foregroundStyle(.primary)
         }
     }
-
+    
     var actionRow: some View {
         HStack(spacing: 12) {
             Button { } label: {
@@ -140,7 +144,7 @@ private extension MediaDetailView {
                 .cornerRadius(10)
             }
             .buttonStyle(.plain)
-
+            
             Button {
                 isFavorite.toggle()
             } label: {
@@ -151,9 +155,9 @@ private extension MediaDetailView {
             .buttonStyle(.plain)
         }
     }
-
+    
     func episodesSection(_ detail: ModuleMediaDetail) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
             Divider()
             
             HStack {
@@ -171,16 +175,23 @@ private extension MediaDetailView {
                     }
                 }
             }
-
+            
             if detail.episodes.isEmpty {
                 Text("No episodes available for this result.")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(clampedRange(total: detail.episodes.count), id: \.self) { index in
+                let visibleRange = clampedRange(total: detail.episodes.count)
+                ForEach(visibleRange, id: \.self) { index in
                     let episode = detail.episodes[index]
-                    let episodeImageURL = episode.imageURL ?? detail.imageURL
-                    episodeRow(episode, index: index, imageURL: episodeImageURL)
+                    let episodeImageURL = episode.imageURL ?? episodeImages[index] ?? detail.imageURL
+                    VStack(spacing: 0) {
+                        episodeRow(episode, index: index, imageURL: episodeImageURL)
+                        if index < visibleRange.upperBound {
+                            Divider()
+                                .padding(.leading, 116)
+                        }
+                    }
                 }
             }
         }
@@ -189,57 +200,64 @@ private extension MediaDetailView {
             resetEpisodeRangeIfNeeded(total: newValue)
         }
     }
-
+    
     func episodeRow(_ episode: ModuleMediaEpisode, index: Int, imageURL: URL?) -> some View {
-        VStack(spacing: 6) {
-            HStack(spacing: 8) {
-                HStack(spacing: 4) {
+        let fullURLCandidate = episode.href ?? episode.downloadURL
+        let progress: Double = {
+            guard let full = fullURLCandidate else { return 0.0 }
+            let last = UserDefaults.standard.double(forKey: "lastPlayedTime_\(full)")
+            let total = UserDefaults.standard.double(forKey: "totalTime_\(full)")
+            return total > 0 ? min(max(last / total, 0.0), 1.0) : 0.0
+        }()
+        
+        return VStack(spacing: 8) {
+            HStack(spacing: 12) {
+                KFImage(imageURL ?? URL(string: "https://raw.githubusercontent.com/cranci1/Celestia/refs/heads/main/assets/banner.jpg"))
+                    .resizable()
+                    .aspectRatio(16/9, contentMode: .fill)
+                    .frame(width: 100, height: 56)
+                    .cornerRadius(8)
+                
+                VStack(alignment: .leading, spacing: 4) {
                     Text("Episode \(index + 1)")
-                        .font(.system(size: 15))
+                        .font(.system(size: 15, weight: .semibold))
+                        .lineLimit(1)
 
-                    Button { } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 14))
+                    let mappedTitle = episodeTitles[index]
+                    if let mapped = mappedTitle, !mapped.isEmpty {
+                        Text(mapped)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    } else if let epTitle = episode.title, !epTitle.isEmpty {
+                        Text(epTitle)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    } else {
+                        Text(episode.displayTitle)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.tint)
                 }
-
+                
                 Spacer()
-
-                Button { } label: {
-                    Image(systemName: "icloud.and.arrow.down")
-                        .font(.system(size: 18))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.tint)
+                
+                CircularProgressBar(progress: progress)
+                    .frame(width: 40, height: 40)
             }
-
-            HStack(spacing: 8) {
-                ProgressView(value: 0.0)
-                    .tint(.accentColor)
-                    .frame(width: 140)
-
-                Text("Start Watching")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-
-                Spacer()
-
-                Text("00:00 left")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-            }
+            .contentShape(Rectangle())
+            .padding(.vertical, 6)
         }
-        .padding(.vertical, 6)
     }
-
+    
     var loadingView: some View {
         ProgressView()
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
+    
     func errorView(_ message: String) -> some View {
         VStack(spacing: 8) {
             Text("Unable to load details")
@@ -255,7 +273,7 @@ private extension MediaDetailView {
     var backgroundColor: Color {
         Color("SecondaryBackgroundColor")
     }
-
+    
     func progressRing(progress: Double) -> some View {
         ZStack {
             Circle()
@@ -266,12 +284,12 @@ private extension MediaDetailView {
                 .rotationEffect(.degrees(-90))
         }
     }
-
+    
     func episodeRanges(total: Int) -> [(label: String, range: ClosedRange<Int>)] {
         guard total > 0 else { return [] }
         let chunkSize = 100
         let chunkCount = (total + chunkSize - 1) / chunkSize
-
+        
         return (0..<chunkCount).map { index in
             let start = index * chunkSize
             let end = min((index + 1) * chunkSize - 1, total - 1)
@@ -279,14 +297,14 @@ private extension MediaDetailView {
             return (label: label, range: start...end)
         }
     }
-
+    
     func clampedRange(total: Int) -> ClosedRange<Int> {
         guard total > 0 else { return 0...0 }
         let lower = max(0, min(episodeRange.lowerBound, total - 1))
         let upper = max(lower, min(episodeRange.upperBound, total - 1))
         return lower...upper
     }
-
+    
     func resetEpisodeRangeIfNeeded(total: Int) {
         guard total > 0 else { return }
         let upper = min(99, total - 1)
@@ -309,8 +327,89 @@ private extension MediaDetailView {
         do {
             let detail = try await moduleStore.fetchMediaDetail(for: item)
             loadState = .loaded(detail)
+            Task { await fetchEpisodeImages(for: detail) }
         } catch {
             loadState = .failed(error.localizedDescription)
+        }
+    }
+    
+    func fetchEpisodeImages(for detail: ModuleMediaDetail) async {
+        guard !isFetchingEpisodeImages else { return }
+        isFetchingEpisodeImages = true
+        
+        defer { isFetchingEpisodeImages = false }
+        
+        do {
+            let anilistID = try await AniListService.shared.fetchID(byTitle: detail.title)
+            let cacheKey = "ani_mappings_\(anilistID)"
+            
+            if let cached = UserDefaults.standard.data(forKey: cacheKey),
+               let json = try? JSONSerialization.jsonObject(with: cached) as? [String: Any] {
+                applyMappings(json: json, detail: detail)
+                return
+            }
+            
+            guard let url = URL(string: "https://api.ani.zip/mappings?anilist_id=\(anilistID)") else { return }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            
+            let (data, _) = try await URLSession.custom.data(for: request)
+            UserDefaults.standard.set(data, forKey: cacheKey)
+            
+            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                applyMappings(json: json, detail: detail)
+            }
+        } catch {
+            return
+        }
+    }
+    
+    func applyMappings(json: [String: Any], detail: ModuleMediaDetail) {
+        guard let episodesDict = json["episodes"] as? [String: Any] else { return }
+        
+        var updated: [Int: URL] = [:]
+        
+        var updatedTitles: [Int: String] = [:]
+
+        for (index, episode) in detail.episodes.enumerated() {
+            let key = String(Int((episode.number.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression))) ?? (index + 1))
+
+            if let info = episodesDict[key] as? [String: Any] {
+                if let image = info["image"] as? String, let url = URL(string: image) {
+                    updated[index] = url
+                }
+
+                // Attempt to extract title: may be a string or a dictionary with language keys
+                if let rawTitle = info["title"] {
+                    if let titleStr = rawTitle as? String, !titleStr.isEmpty {
+                        updatedTitles[index] = titleStr
+                    } else if let titleDict = rawTitle as? [String: Any] {
+                        // prefer English then 'en', 'english', 'romaji', 'userPreferred'
+                        if let en = titleDict["en"] as? String, !en.isEmpty {
+                            updatedTitles[index] = en
+                        } else if let english = titleDict["english"] as? String, !english.isEmpty {
+                            updatedTitles[index] = english
+                        } else if let romaji = titleDict["romaji"] as? String, !romaji.isEmpty {
+                            updatedTitles[index] = romaji
+                        } else if let up = titleDict["userPreferred"] as? String, !up.isEmpty {
+                            updatedTitles[index] = up
+                        }
+                    }
+                }
+            }
+        }
+
+        DispatchQueue.main.async {
+            if !updated.isEmpty {
+                self.episodeImages = updated
+            }
+            if !updatedTitles.isEmpty {
+                // merge with existing titles, prefer mapping titles
+                var merged = self.episodeTitles
+                for (k, v) in updatedTitles { merged[k] = v }
+                self.episodeTitles = merged
+            }
         }
     }
 }
