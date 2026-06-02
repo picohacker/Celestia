@@ -5,14 +5,31 @@
 //  Created by Francesco on 31/05/26.
 //
 
+import AVKit
 import SwiftUI
 import Kingfisher
+import AVFoundation
 
 private enum MediaDetailLoadState {
     case idle
     case loading
     case loaded(ModuleMediaDetail)
     case failed(String)
+}
+
+struct StreamResponse: Decodable {
+    let streamUrl: String?
+    let subtitle: String?
+    let subtitles: String?
+    let streams: [StreamServer]?
+}
+
+struct StreamServer: Decodable, Identifiable {
+    var id: String { title }
+    
+    let title: String
+    let streamUrl: String
+    let headers: [String: String]?
 }
 
 struct MediaDetailView: View {
@@ -35,6 +52,14 @@ struct MediaDetailView: View {
     @State private var streamError: String? = nil
     @State private var selectedEpisodeHref: String? = nil
     
+    @State private var selectedStreamURL: URL?
+    @State private var selectedSubtitleURL: URL?
+    @State private var availableStreams: [StreamServer] = []
+    @State private var selectedHeaders: [String: String] = [:]
+    
+    @State private var showStreamPicker = false
+    @State private var showFullscreenPlayer = false
+    
     var body: some View {
         Group {
             switch loadState {
@@ -49,6 +74,29 @@ struct MediaDetailView: View {
         .background(backgroundColor.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .task { await loadDetail() }
+        .confirmationDialog(
+            "Select Stream",
+            isPresented: $showStreamPicker
+        ) {
+            ForEach(availableStreams) { stream in
+                Button(stream.title) {
+                    playStream(
+                        url: stream.streamUrl,
+                        headers: stream.headers ?? [:],
+                        subtitle: selectedSubtitleURL?.absoluteString
+                    )
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showFullscreenPlayer) {
+            if let url = selectedStreamURL {
+                FullscreenPlayerView(
+                    url: url,
+                    headers: selectedHeaders,
+                    subtitleURL: selectedSubtitleURL
+                )
+            }
+        }
     }
 }
 
@@ -134,7 +182,7 @@ private extension MediaDetailView {
     
     func hasMetadata(_ detail: ModuleMediaDetail) -> Bool {
         return (detail.airDate?.isEmpty == false) ||
-               (detail.episodeCountText?.isEmpty == false)
+        (detail.episodeCountText?.isEmpty == false)
     }
     
     // MARK: - Synopsis
@@ -404,17 +452,17 @@ private extension MediaDetailView {
             let result = await moduleStore.fetchStreamUrl(for: episode, moduleName: moduleName)
             isFetchingStream = false
             
-            if let sources = result.sources, !sources.isEmpty {
-                streamSources = sources
-            } else if let urls = result.streams, !urls.isEmpty {
-                streamURLs = urls
-            } else {
-                streamError = "No stream found for this episode."
-            }
+            streamSources = result.sources
+            streamURLs = result.streams
             
             if let subs = result.subtitles {
                 subtitleURLs = subs
             }
+            
+            handleFetchedStreams(
+                sources: result.sources,
+                urls: result.streams
+            )
         }
     }
     
@@ -508,4 +556,125 @@ private extension MediaDetailView {
             }
         }
     }
+    
+    func playStream(url: String, headers: [String: String] = [:], subtitle: String? = nil) {
+        guard let streamURL = URL(string: url) else {
+            return
+        }
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .moviePlayback
+            )
+            
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print(error)
+        }
+        
+        selectedStreamURL = streamURL
+        selectedHeaders = headers
+        selectedSubtitleURL = subtitle.flatMap(URL.init(string:))
+        
+        showFullscreenPlayer = true
+    }
+    
+    @MainActor
+    func handleFetchedStreams(sources: [[String: Any]]?, urls: [String]?) {
+        streamError = nil
+        availableStreams = []
+        
+        if let sources = sources, !sources.isEmpty {
+            let streams: [StreamServer] = sources.compactMap { source in
+                guard let url = source["streamUrl"] as? String,
+                      !url.isEmpty else { return nil }
+                
+                let title =
+                source["title"] as? String ??
+                source["label"] as? String ??
+                "Stream"
+                
+                let headers = source["headers"] as? [String: String]
+                
+                return StreamServer(
+                    title: title,
+                    streamUrl: url,
+                    headers: headers
+                )
+            }
+            
+            guard !streams.isEmpty else {
+                streamError = "No valid streams found."
+                return
+            }
+            availableStreams = streams
+            
+            if streams.count == 1 {
+                playStream(
+                    url: streams[0].streamUrl,
+                    headers: streams[0].headers ?? [:],
+                    subtitle: selectedSubtitleURL?.absoluteString
+                )
+            } else {
+                showStreamPicker = true
+            }
+            return
+        }
+        
+        if let urls = urls, !urls.isEmpty {
+            let streams: [StreamServer] = urls.enumerated().map {
+                StreamServer(
+                    title: "Stream \($0.offset + 1)",
+                    streamUrl: $0.element,
+                    headers: nil
+                )
+            }
+            availableStreams = streams
+            
+            if streams.count == 1 {
+                playStream(
+                    url: streams[0].streamUrl,
+                    headers: [:],
+                    subtitle: selectedSubtitleURL?.absoluteString
+                )
+            } else {
+                showStreamPicker = true
+            }
+            return
+        }
+        
+        streamError = "No stream found for this episode."
+    }
+}
+
+struct FullscreenPlayerView: UIViewControllerRepresentable {
+    let url: URL
+    let headers: [String: String]
+    let subtitleURL: URL?
+    
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        
+        let asset = AVURLAsset(
+            url: url,
+            options: [
+                "AVURLAssetHTTPHeaderFieldsKey": headers
+            ]
+        )
+        
+        let item = AVPlayerItem(asset: asset)
+        let player = AVPlayer(playerItem: item)
+        
+        controller.player = player
+        controller.allowsPictureInPicturePlayback = true
+        
+        DispatchQueue.main.async {
+            player.play()
+        }
+        
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) { }
 }
