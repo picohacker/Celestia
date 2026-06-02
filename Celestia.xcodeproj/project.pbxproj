@@ -25,10 +25,16 @@
 		1326C55A2FCC762100EEDD95 /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C5592FCC762100EEDD95 /* URLSession.swift */; };
 		1326C55C2FCC808E00EEDD95 /* ModuleDetailModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C55B2FCC808E00EEDD95 /* ModuleDetailModels.swift */; };
 		1326C55E2FCC809400EEDD95 /* MediaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1326C55D2FCC809400EEDD95 /* MediaDetailView.swift */; };
-		1340AA102FCE2A0100A1B2C3 /* ModuleRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA0E2FCE2A0100A1B2C3 /* ModuleRuntime.swift */; };
 		1340AA112FCE2A0100A1B2C3 /* ModuleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA0F2FCE2A0100A1B2C3 /* ModuleModels.swift */; };
 		1340AA142FCE2B1A00A1B2C3 /* ModuleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA132FCE2B1A00A1B2C3 /* ModuleStore.swift */; };
 		1340AA162FCE2E1F00A1B2C3 /* SearchResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1340AA152FCE2E1F00A1B2C3 /* SearchResultsView.swift */; };
+		13518C162FCED083001FB956 /* JSController-Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C0B2FCED083001FB956 /* JSController-Search.swift */; };
+		13518C172FCED083001FB956 /* JSController-Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C0C2FCED083001FB956 /* JSController-Details.swift */; };
+		13518C182FCED083001FB956 /* JSController-Streams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C0D2FCED083001FB956 /* JSController-Streams.swift */; };
+		13518C1E2FCED083001FB956 /* JSController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C142FCED083001FB956 /* JSController.swift */; };
+		13518C1F2FCED083001FB956 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C152FCED083001FB956 /* JSController-NetworkFetch.swift */; };
+		13518C212FCED0FB001FB956 /* JSController-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C202FCED0FA001FB956 /* JSController-Extensions.swift */; };
+		13518C242FCED114001FB956 /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13518C232FCED114001FB956 /* SoraCore */; };
 		13B21F702FCCC5AE00394B56 /* CircularProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B21F6F2FCCC5AE00394B56 /* CircularProgressBar.swift */; };
 /* End PBXBuildFile section */
 
@@ -52,10 +58,15 @@
 		1326C5592FCC762100EEDD95 /* URLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
 		1326C55B2FCC808E00EEDD95 /* ModuleDetailModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleDetailModels.swift; sourceTree = "<group>"; };
 		1326C55D2FCC809400EEDD95 /* MediaDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaDetailView.swift; sourceTree = "<group>"; };
-		1340AA0E2FCE2A0100A1B2C3 /* ModuleRuntime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleRuntime.swift; sourceTree = "<group>"; };
 		1340AA0F2FCE2A0100A1B2C3 /* ModuleModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleModels.swift; sourceTree = "<group>"; };
 		1340AA132FCE2B1A00A1B2C3 /* ModuleStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModuleStore.swift; sourceTree = "<group>"; };
 		1340AA152FCE2E1F00A1B2C3 /* SearchResultsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultsView.swift; sourceTree = "<group>"; };
+		13518C0B2FCED083001FB956 /* JSController-Search.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Search.swift"; sourceTree = "<group>"; };
+		13518C0C2FCED083001FB956 /* JSController-Details.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Details.swift"; sourceTree = "<group>"; };
+		13518C0D2FCED083001FB956 /* JSController-Streams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Streams.swift"; sourceTree = "<group>"; };
+		13518C142FCED083001FB956 /* JSController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSController.swift; sourceTree = "<group>"; };
+		13518C152FCED083001FB956 /* JSController-NetworkFetch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-NetworkFetch.swift"; sourceTree = "<group>"; };
+		13518C202FCED0FA001FB956 /* JSController-Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "JSController-Extensions.swift"; sourceTree = "<group>"; };
 		13B21F6F2FCCC5AE00394B56 /* CircularProgressBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -64,6 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13518C242FCED114001FB956 /* SoraCore in Frameworks */,
 				1326C5462FCC183A00EEDD95 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -90,6 +102,7 @@
 		1326C5232FCC13BC00EEDD95 /* Celestia */ = {
 			isa = PBXGroup;
 			children = (
+				13518C0A2FCED083001FB956 /* JSLoader */,
 				1326C5582FCC75DE00EEDD95 /* Extensions */,
 				1326C5432FCC14D900EEDD95 /* Info.plist */,
 				1326C5472FCC184500EEDD95 /* Services */,
@@ -130,7 +143,6 @@
 				1326C54A2FCC184A00EEDD95 /* Models */,
 				1340AA132FCE2B1A00A1B2C3 /* ModuleStore.swift */,
 				1326C5482FCC184500EEDD95 /* AniListService.swift */,
-				1340AA0E2FCE2A0100A1B2C3 /* ModuleRuntime.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -166,6 +178,27 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		13518C0A2FCED083001FB956 /* JSLoader */ = {
+			isa = PBXGroup;
+			children = (
+				13518C252FCED11D001FB956 /* Extensions */,
+				13518C142FCED083001FB956 /* JSController.swift */,
+				13518C0B2FCED083001FB956 /* JSController-Search.swift */,
+				13518C0C2FCED083001FB956 /* JSController-Details.swift */,
+				13518C0D2FCED083001FB956 /* JSController-Streams.swift */,
+			);
+			path = JSLoader;
+			sourceTree = "<group>";
+		};
+		13518C252FCED11D001FB956 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				13518C202FCED0FA001FB956 /* JSController-Extensions.swift */,
+				13518C152FCED083001FB956 /* JSController-NetworkFetch.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -184,6 +217,7 @@
 			name = Celestia;
 			packageProductDependencies = (
 				1326C5452FCC183A00EEDD95 /* Kingfisher */,
+				13518C232FCED114001FB956 /* SoraCore */,
 			);
 			productName = Celestia;
 			productReference = 1326C5212FCC13BC00EEDD95 /* Celestia.app */;
@@ -215,6 +249,7 @@
 			mainGroup = 1326C5182FCC13BC00EEDD95;
 			packageReferences = (
 				1326C5442FCC183A00EEDD95 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				13518C222FCED114001FB956 /* XCRemoteSwiftPackageReference "SoraCore" */,
 			);
 			productRefGroup = 1326C5222FCC13BC00EEDD95 /* Products */;
 			projectDirPath = "";
@@ -246,17 +281,22 @@
 				1326C55E2FCC809400EEDD95 /* MediaDetailView.swift in Sources */,
 				1326C5522FCC185200EEDD95 /* RemoteImageView.swift in Sources */,
 				1326C5572FCC21CD00EEDD95 /* SettingsKeys.swift in Sources */,
+				13518C1F2FCED083001FB956 /* JSController-NetworkFetch.swift in Sources */,
 				1326C55A2FCC762100EEDD95 /* URLSession.swift in Sources */,
 				1326C5532FCC185200EEDD95 /* AiringAnimeCard.swift in Sources */,
+				13518C212FCED0FB001FB956 /* JSController-Extensions.swift in Sources */,
 				1326C53F2FCC149E00EEDD95 /* DownloadsView.swift in Sources */,
 				1326C5412FCC149E00EEDD95 /* HomeView.swift in Sources */,
 				1326C5422FCC149E00EEDD95 /* SearchView.swift in Sources */,
+				13518C172FCED083001FB956 /* JSController-Details.swift in Sources */,
 				1326C55C2FCC808E00EEDD95 /* ModuleDetailModels.swift in Sources */,
 				1340AA162FCE2E1F00A1B2C3 /* SearchResultsView.swift in Sources */,
 				1326C54C2FCC184A00EEDD95 /* AniListModels.swift in Sources */,
 				1326C5492FCC184500EEDD95 /* AniListService.swift in Sources */,
+				13518C162FCED083001FB956 /* JSController-Search.swift in Sources */,
+				13518C1E2FCED083001FB956 /* JSController.swift in Sources */,
+				13518C182FCED083001FB956 /* JSController-Streams.swift in Sources */,
 				1340AA112FCE2A0100A1B2C3 /* ModuleModels.swift in Sources */,
-				1340AA102FCE2A0100A1B2C3 /* ModuleRuntime.swift in Sources */,
 				1340AA142FCE2B1A00A1B2C3 /* ModuleStore.swift in Sources */,
 				1326C5252FCC13BC00EEDD95 /* CelestiaApp.swift in Sources */,
 				1326C5512FCC185200EEDD95 /* SlimAnimeCard.swift in Sources */,
@@ -395,7 +435,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Celestia/Preview Content\"";
-				DEVELOPMENT_TEAM = USF65A4WGS;
+				DEVELOPMENT_TEAM = KY69KV5SVN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Celestia/Info.plist;
@@ -430,7 +470,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Celestia/Preview Content\"";
-				DEVELOPMENT_TEAM = USF65A4WGS;
+				DEVELOPMENT_TEAM = KY69KV5SVN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Celestia/Info.plist;
@@ -489,6 +529,14 @@
 				minimumVersion = 8.9.0;
 			};
 		};
+		13518C222FCED114001FB956 /* XCRemoteSwiftPackageReference "SoraCore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cranci1/SoraCore";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -496,6 +544,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1326C5442FCC183A00EEDD95 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		13518C232FCED114001FB956 /* SoraCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 13518C222FCED114001FB956 /* XCRemoteSwiftPackageReference "SoraCore" */;
+			productName = SoraCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

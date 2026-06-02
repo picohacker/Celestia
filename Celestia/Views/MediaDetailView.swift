@@ -28,6 +28,12 @@ struct MediaDetailView: View {
     @State private var episodeImages: [Int: URL] = [:]
     @State private var isFetchingEpisodeImages: Bool = false
     @State private var episodeTitles: [Int: String] = [:]
+    @State private var streamSources: [[String: Any]]? = nil
+    @State private var streamURLs: [String]? = nil
+    @State private var subtitleURLs: [String]? = nil
+    @State private var isFetchingStream: Bool = false
+    @State private var streamError: String? = nil
+    @State private var selectedEpisodeHref: String? = nil
     
     var body: some View {
         Group {
@@ -52,6 +58,10 @@ private extension MediaDetailView {
             VStack(alignment: .leading, spacing: 12) {
                 headerRow(detail)
                 
+                if hasMetadata(detail) {
+                    metadataRow(detail)
+                }
+                
                 if !detail.synopsis.isEmpty {
                     synopsisRow(detail)
                 }
@@ -63,6 +73,8 @@ private extension MediaDetailView {
             .padding(16)
         }
     }
+    
+    // MARK: - Header
     
     func headerRow(_ detail: ModuleMediaDetail) -> some View {
         HStack(alignment: .top, spacing: 10) {
@@ -103,6 +115,30 @@ private extension MediaDetailView {
         }
     }
     
+    func metadataRow(_ detail: ModuleMediaDetail) -> some View {
+        HStack(spacing: 16) {
+            if let airDate = detail.airDate, !airDate.isEmpty {
+                Label(airDate, systemImage: "calendar")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let episodeCountText = detail.episodeCountText, !episodeCountText.isEmpty {
+                Label("\(episodeCountText) eps", systemImage: "list.bullet")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    func hasMetadata(_ detail: ModuleMediaDetail) -> Bool {
+        return (detail.airDate?.isEmpty == false) ||
+               (detail.episodeCountText?.isEmpty == false)
+    }
+    
+    // MARK: - Synopsis
+    
     func synopsisRow(_ detail: ModuleMediaDetail) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Divider()
@@ -130,6 +166,8 @@ private extension MediaDetailView {
         }
     }
     
+    // MARK: - Actions
+    
     var actionRow: some View {
         HStack(spacing: 12) {
             Button { } label: {
@@ -155,6 +193,8 @@ private extension MediaDetailView {
             .buttonStyle(.plain)
         }
     }
+    
+    // MARK: - Episodes
     
     func episodesSection(_ detail: ModuleMediaDetail) -> some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -210,6 +250,9 @@ private extension MediaDetailView {
             return total > 0 ? min(max(last / total, 0.0), 1.0) : 0.0
         }()
         
+        let isSelected = selectedEpisodeHref != nil && selectedEpisodeHref == fullURLCandidate
+        let isLoadingThis = isSelected && isFetchingStream
+        
         return VStack(spacing: 8) {
             HStack(spacing: 12) {
                 KFImage(imageURL ?? URL(string: "https://raw.githubusercontent.com/cranci1/Celestia/refs/heads/main/assets/banner.jpg"))
@@ -222,7 +265,7 @@ private extension MediaDetailView {
                     Text("Episode \(index + 1)")
                         .font(.system(size: 15, weight: .semibold))
                         .lineLimit(1)
-
+                    
                     let mappedTitle = episodeTitles[index]
                     if let mapped = mappedTitle, !mapped.isEmpty {
                         Text(mapped)
@@ -244,12 +287,36 @@ private extension MediaDetailView {
                 
                 Spacer()
                 
-                CircularProgressBar(progress: progress)
-                    .frame(width: 40, height: 40)
+                if isLoadingThis {
+                    ProgressView()
+                        .frame(width: 40, height: 40)
+                } else {
+                    CircularProgressBar(progress: progress)
+                        .frame(width: 40, height: 40)
+                }
             }
             .contentShape(Rectangle())
             .padding(.vertical, 6)
+            .onTapGesture {
+                guard !isFetchingStream else { return }
+                guard let detail = loadedDetail else { return }
+                fetchStream(for: episode, moduleName: detail.moduleName)
+            }
+            
+            if isSelected, let error = streamError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .padding(.horizontal)
+            }
         }
+    }
+    
+    // MARK: - Helpers
+    
+    private var loadedDetail: ModuleMediaDetail? {
+        if case .loaded(let d) = loadState { return d }
+        return nil
     }
     
     var loadingView: some View {
@@ -318,6 +385,39 @@ private extension MediaDetailView {
         synopsis.count > 180
     }
     
+    // MARK: - Fetching
+    
+    func fetchStream(for episode: ModuleMediaEpisode, moduleName: String) {
+        guard let href = episode.href ?? episode.downloadURL, !href.isEmpty else {
+            streamError = "No stream URL available for this episode."
+            return
+        }
+        
+        isFetchingStream = true
+        selectedEpisodeHref = href
+        streamError = nil
+        streamURLs = nil
+        streamSources = nil
+        subtitleURLs = nil
+        
+        Task {
+            let result = await moduleStore.fetchStreamUrl(for: episode, moduleName: moduleName)
+            isFetchingStream = false
+            
+            if let sources = result.sources, !sources.isEmpty {
+                streamSources = sources
+            } else if let urls = result.streams, !urls.isEmpty {
+                streamURLs = urls
+            } else {
+                streamError = "No stream found for this episode."
+            }
+            
+            if let subs = result.subtitles {
+                subtitleURLs = subs
+            }
+        }
+    }
+    
     func loadDetail() async {
         if case .loading = loadState { return }
         if case .loaded = loadState { return }
@@ -369,23 +469,20 @@ private extension MediaDetailView {
         guard let episodesDict = json["episodes"] as? [String: Any] else { return }
         
         var updated: [Int: URL] = [:]
-        
         var updatedTitles: [Int: String] = [:]
-
+        
         for (index, episode) in detail.episodes.enumerated() {
             let key = String(Int((episode.number.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression))) ?? (index + 1))
-
+            
             if let info = episodesDict[key] as? [String: Any] {
                 if let image = info["image"] as? String, let url = URL(string: image) {
                     updated[index] = url
                 }
-
-                // Attempt to extract title: may be a string or a dictionary with language keys
+                
                 if let rawTitle = info["title"] {
                     if let titleStr = rawTitle as? String, !titleStr.isEmpty {
                         updatedTitles[index] = titleStr
                     } else if let titleDict = rawTitle as? [String: Any] {
-                        // prefer English then 'en', 'english', 'romaji', 'userPreferred'
                         if let en = titleDict["en"] as? String, !en.isEmpty {
                             updatedTitles[index] = en
                         } else if let english = titleDict["english"] as? String, !english.isEmpty {
@@ -399,13 +496,12 @@ private extension MediaDetailView {
                 }
             }
         }
-
+        
         DispatchQueue.main.async {
             if !updated.isEmpty {
                 self.episodeImages = updated
             }
             if !updatedTitles.isEmpty {
-                // merge with existing titles, prefer mapping titles
                 var merged = self.episodeTitles
                 for (k, v) in updatedTitles { merged[k] = v }
                 self.episodeTitles = merged

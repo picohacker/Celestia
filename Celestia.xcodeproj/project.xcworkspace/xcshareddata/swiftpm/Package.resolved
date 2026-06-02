@@ -8,6 +8,15 @@
         "revision" : "cf8be20d07654570554c8a8a4952bc8a5766a8b0",
         "version" : "8.9.0"
       }
+    },
+    {
+      "identity" : "soracore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cranci1/SoraCore",
+      "state" : {
+        "branch" : "main",
+        "revision" : "50ddc160fd606e9708adefc1d9fc7003b574446b"
+      }
     }
   ],
   "version" : 2

@@ -16,7 +16,7 @@ final class ModuleStore: ObservableObject {
     private let fileManager = FileManager.default
     private let modulesDirectory: URL
     private let indexURL: URL
-    private var runtimeCache: [String: ModuleRuntime] = [:]
+    private var controllerCache: [String: JSController] = [:]
     
     private let decoder: JSONDecoder = {
         let d = JSONDecoder()
@@ -59,14 +59,14 @@ final class ModuleStore: ObservableObject {
         )
         
         upsertRecord(record)
-        runtimeCache[moduleID] = try makeRuntime(id: moduleID, name: payload.sourceName, script: scriptString)
+        controllerCache[moduleID] = JSController(moduleName: payload.sourceName, script: scriptString)
     }
     
     func removeModule(id: String) {
         guard let index = records.firstIndex(where: { $0.id == id }) else { return }
         let record = records[index]
         deleteFiles(for: record)
-        runtimeCache.removeValue(forKey: id)
+        controllerCache.removeValue(forKey: id)
         records.remove(at: index)
         saveIndex()
     }
@@ -74,14 +74,26 @@ final class ModuleStore: ObservableObject {
     func search(keyword: String) async throws -> [ModuleSearchItem] {
         let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
-        
+
         return try await withThrowingTaskGroup(of: [ModuleSearchItem].self) { group in
             for record in records {
                 group.addTask { [weak self] in
                     guard let self else { return [] }
-                    let runtime = try await self.loadOrCacheRuntime(for: record)
-                    let result = try await runtime.searchResults(keyword: trimmed)
-                    return await self.parseSearchResults(result, moduleName: record.name)
+                    let controller = try await self.loadOrCacheController(for: record)
+                    return try await withCheckedThrowingContinuation { continuation in
+                        controller.fetchSearchJS(keyword: trimmed) { items in
+                            let mapped = items.map { item in
+                                ModuleSearchItem(
+                                    id: UUID(),
+                                    moduleName: record.name,
+                                    title: item.title,
+                                    imageURL: item.imageUrl.isEmpty ? nil : URL(string: item.imageUrl),
+                                    href: item.href
+                                )
+                            }
+                            continuation.resume(returning: mapped)
+                        }
+                    }
                 }
             }
             var all: [ModuleSearchItem] = []
@@ -95,11 +107,52 @@ final class ModuleStore: ObservableObject {
             throw ModuleStoreError.moduleNotFound(item.moduleName)
         }
 
-        let runtime = try loadOrCacheRuntime(for: record)
-        let details = try await runtime.extractDetails(url: item.href)
-        let episodes = try? await runtime.extractEpisodes(url: item.href)
+        let controller = try loadOrCacheController(for: record)
 
-        return ModuleMediaDetail.parse(details: details, episodes: episodes, fallbackItem: item)
+        return try await withCheckedThrowingContinuation { continuation in
+            controller.fetchDetailsJS(url: item.href) { details, episodes in
+                let detail = ModuleMediaDetail.parse(
+                    details: details,
+                    episodes: episodes,
+                    fallbackItem: item
+                )
+                continuation.resume(returning: detail)
+            }
+        }
+    }
+
+    private func fetchStreamUrlWithCompletion(
+        for episode: ModuleMediaEpisode,
+        moduleName: String,
+        completion: @escaping ((streams: [String]?, subtitles: [String]?, sources: [[String: Any]]?)) -> Void
+    ) {
+        guard let record = records.first(where: { $0.name == moduleName }) else {
+            Logger.shared.log("Module not found: \(moduleName)", type: "Error")
+            completion((nil, nil, nil))
+            return
+        }
+
+        guard let controller = try? loadOrCacheController(for: record) else {
+            Logger.shared.log("Failed to load JS controller for: \(moduleName)", type: "Error")
+            completion((nil, nil, nil))
+            return
+        }
+
+        guard let href = episode.href ?? episode.downloadURL, !href.isEmpty else {
+            Logger.shared.log("Episode has no href or downloadURL", type: "Error")
+            completion((nil, nil, nil))
+            return
+        }
+
+        controller.fetchStreamUrlJS(episodeUrl: href, completion: completion)
+    }
+    
+    func fetchStreamUrl(for episode: ModuleMediaEpisode, moduleName: String) async -> (streams: [String]?, subtitles: [String]?, sources: [[String: Any]]?) {
+        await withCheckedContinuation { continuation in
+            fetchStreamUrlWithCompletion(for: episode, moduleName: moduleName) { result in
+                continuation.resume(returning: result)
+            }
+        }
     }
 }
 
@@ -165,11 +218,11 @@ private extension ModuleStore {
     }
 }
 
-// MARK: - Runtime
+// MARK: - JSController cache
 
 private extension ModuleStore {
-    func loadOrCacheRuntime(for record: ModuleRecord) throws -> ModuleRuntime {
-        if let cached = runtimeCache[record.id] { return cached }
+    func loadOrCacheController(for record: ModuleRecord) throws -> JSController {
+        if let cached = controllerCache[record.id] { return cached }
         
         let url = modulesDirectory.appendingPathComponent(record.scriptFileName)
         guard let data = try? Data(contentsOf: url),
@@ -178,57 +231,9 @@ private extension ModuleStore {
             throw ModuleStoreError.missingScriptFile(record.name)
         }
         
-        let runtime = try makeRuntime(id: record.id, name: record.name, script: script)
-        runtimeCache[record.id] = runtime
-        return runtime
-    }
-    
-    func makeRuntime(id: String, name: String, script: String) throws -> ModuleRuntime {
-        try ModuleRuntime(module: ModuleDefinition(id: id, name: name, script: script))
-    }
-}
-
-// MARK: - Parsing
-
-private extension ModuleStore {
-    func parseSearchResults(_ result: Any, moduleName: String) -> [ModuleSearchItem] {
-        let array: [Any]
-        
-        if let direct = result as? [Any] {
-            array = direct
-        } else if let string = result as? String,
-                  let data = string.data(using: .utf8),
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [Any] {
-            array = json
-        } else {
-            return []
-        }
-        
-        return array.compactMap { parseSearchItem($0, moduleName: moduleName) }
-    }
-    
-    func parseSearchItem(_ payload: Any, moduleName: String) -> ModuleSearchItem? {
-        guard let dict = payload as? [String: Any],
-              let title = stringValue(dict["title"]),
-              let href = stringValue(dict["href"]) else { return nil }
-        
-        let imageURL = stringValue(dict["image"]).flatMap(URL.init(string:))
-        
-        return ModuleSearchItem(
-            id: UUID(),
-            moduleName: moduleName,
-            title: title,
-            imageURL: imageURL,
-            href: href
-        )
-    }
-    
-    func stringValue(_ value: Any?) -> String? {
-        switch value {
-        case let s as String: return s
-        case let n as NSNumber: return n.stringValue
-        default: return nil
-        }
+        let controller = JSController(moduleName: record.name, script: script)
+        controllerCache[record.id] = controller
+        return controller
     }
 }
 

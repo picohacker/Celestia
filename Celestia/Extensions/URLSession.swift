@@ -56,4 +56,31 @@ extension URLSession {
         configuration.httpAdditionalHeaders = ["User-Agent": randomUserAgent]
         return URLSession(configuration: configuration)
     }()
+    
+    static func fetchData(allowRedirects: Bool) -> URLSession {
+        let configuration = URLSessionConfiguration.ephemeral
+        return URLSession(
+            configuration: configuration,
+            delegate: FetchRedirectHandler(allowRedirects: allowRedirects),
+            delegateQueue: nil
+        )
+    }
+}
+
+private final class FetchRedirectHandler: NSObject, URLSessionTaskDelegate {
+    private let allowRedirects: Bool
+    
+    init(allowRedirects: Bool) {
+        self.allowRedirects = allowRedirects
+    }
+    
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest,
+        completionHandler: @escaping (URLRequest?) -> Void
+    ) {
+        completionHandler(allowRedirects ? request : nil)
+    }
 }
