@@ -30,8 +30,6 @@ final class JSController {
     }
     
     func loadScript(_ script: String) {
-        context = JSContext()!
-        setupContext()
         context.evaluateScript(script)
         if let exception = context.exception {
             Logger.shared.log("Error loading script for \(moduleName): \(exception)", type: "Error")
