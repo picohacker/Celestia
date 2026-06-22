@@ -5,10 +5,9 @@
 //  Created by Francesco on 31/05/26.
 //
 
-import AVKit
+import Sybau
 import SwiftUI
 import Kingfisher
-import AVFoundation
 
 private enum MediaDetailLoadState {
     case idle
@@ -58,7 +57,6 @@ struct MediaDetailView: View {
     @State private var selectedHeaders: [String: String] = [:]
     
     @State private var showStreamPicker = false
-    @State private var showFullscreenPlayer = false
     
     var body: some View {
         Group {
@@ -86,15 +84,6 @@ struct MediaDetailView: View {
                         subtitle: selectedSubtitleURL?.absoluteString
                     )
                 }
-            }
-        }
-        .fullScreenCover(isPresented: $showFullscreenPlayer) {
-            if let url = selectedStreamURL {
-                FullscreenPlayerView(
-                    url: url,
-                    headers: selectedHeaders,
-                    subtitleURL: selectedSubtitleURL
-                )
             }
         }
     }
@@ -557,27 +546,27 @@ private extension MediaDetailView {
         }
     }
     
+    // MARK: - MPV
+    
     func playStream(url: String, headers: [String: String] = [:], subtitle: String? = nil) {
-        guard let streamURL = URL(string: url) else {
-            return
+        guard let streamURL = URL(string: url) else { return }
+        
+        let preset = PlayerPreset.presets.first
+        let subtitleArray: [String]? = subtitle.map { [$0] }
+        let pvc = PlayerViewController(
+            url: streamURL,
+            preset: preset ?? PlayerPreset(title: "Default", summary: "", stream: nil, commands: []),
+            headers: headers,
+            subtitles: subtitleArray
+        )
+        pvc.modalPresentationStyle = .fullScreen
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            rootVC.topmostViewController().present(pvc, animated: true, completion: nil)
+        } else {
+            Logger.shared.log("Failed to find root view controller to present MPV player", type: "Error")
         }
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(
-                .playback,
-                mode: .moviePlayback
-            )
-            
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print(error)
-        }
-        
-        selectedStreamURL = streamURL
-        selectedHeaders = headers
-        selectedSubtitleURL = subtitle.flatMap(URL.init(string:))
-        
-        showFullscreenPlayer = true
     }
     
     @MainActor
@@ -590,11 +579,7 @@ private extension MediaDetailView {
                 guard let url = source["streamUrl"] as? String,
                       !url.isEmpty else { return nil }
                 
-                let title =
-                source["title"] as? String ??
-                source["label"] as? String ??
-                "Stream"
-                
+                let title = source["title"] as? String ?? source["label"] as? String ?? "Stream"
                 let headers = source["headers"] as? [String: String]
                 
                 return StreamServer(
@@ -648,33 +633,20 @@ private extension MediaDetailView {
     }
 }
 
-struct FullscreenPlayerView: UIViewControllerRepresentable {
-    let url: URL
-    let headers: [String: String]
-    let subtitleURL: URL?
-    
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        
-        let asset = AVURLAsset(
-            url: url,
-            options: [
-                "AVURLAssetHTTPHeaderFieldsKey": headers
-            ]
-        )
-        
-        let item = AVPlayerItem(asset: asset)
-        let player = AVPlayer(playerItem: item)
-        
-        controller.player = player
-        controller.allowsPictureInPicturePlayback = true
-        
-        DispatchQueue.main.async {
-            player.play()
+extension UIViewController {
+    func topmostViewController() -> UIViewController {
+        if let presented = self.presentedViewController {
+            return presented.topmostViewController()
         }
         
-        return controller
+        if let navigation = self as? UINavigationController {
+            return navigation.visibleViewController?.topmostViewController() ?? navigation
+        }
+        
+        if let tabBar = self as? UITabBarController {
+            return tabBar.selectedViewController?.topmostViewController() ?? tabBar
+        }
+        
+        return self
     }
-    
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) { }
 }
