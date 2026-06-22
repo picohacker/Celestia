@@ -35,6 +35,7 @@
 		13518C1F2FCED083001FB956 /* JSController-NetworkFetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C152FCED083001FB956 /* JSController-NetworkFetch.swift */; };
 		13518C212FCED0FB001FB956 /* JSController-Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13518C202FCED0FA001FB956 /* JSController-Extensions.swift */; };
 		13518C242FCED114001FB956 /* SoraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 13518C232FCED114001FB956 /* SoraCore */; };
+		1370E8C72FE9C00B00973BBC /* Sybau in Frameworks */ = {isa = PBXBuildFile; productRef = 1370E8C62FE9C00B00973BBC /* Sybau */; };
 		13B21F702FCCC5AE00394B56 /* CircularProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B21F6F2FCCC5AE00394B56 /* CircularProgressBar.swift */; };
 /* End PBXBuildFile section */
 
@@ -75,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1370E8C72FE9C00B00973BBC /* Sybau in Frameworks */,
 				13518C242FCED114001FB956 /* SoraCore in Frameworks */,
 				1326C5462FCC183A00EEDD95 /* Kingfisher in Frameworks */,
 			);
@@ -218,6 +220,7 @@
 			packageProductDependencies = (
 				1326C5452FCC183A00EEDD95 /* Kingfisher */,
 				13518C232FCED114001FB956 /* SoraCore */,
+				1370E8C62FE9C00B00973BBC /* Sybau */,
 			);
 			productName = Celestia;
 			productReference = 1326C5212FCC13BC00EEDD95 /* Celestia.app */;
@@ -250,6 +253,7 @@
 			packageReferences = (
 				1326C5442FCC183A00EEDD95 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				13518C222FCED114001FB956 /* XCRemoteSwiftPackageReference "SoraCore" */,
+				1370E8C52FE9C00B00973BBC /* XCRemoteSwiftPackageReference "Sybau" */,
 			);
 			productRefGroup = 1326C5222FCC13BC00EEDD95 /* Products */;
 			projectDirPath = "";
@@ -539,6 +543,14 @@
 				kind = branch;
 			};
 		};
+		1370E8C52FE9C00B00973BBC /* XCRemoteSwiftPackageReference "Sybau" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cranci1/Sybau";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -551,6 +563,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 13518C222FCED114001FB956 /* XCRemoteSwiftPackageReference "SoraCore" */;
 			productName = SoraCore;
+		};
+		1370E8C62FE9C00B00973BBC /* Sybau */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1370E8C52FE9C00B00973BBC /* XCRemoteSwiftPackageReference "Sybau" */;
+			productName = Sybau;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -5,6 +5,7 @@
 //  Created by Francesco on 02/06/26.
 //
 
+import Sybau
 import JavaScriptCore
 
 final class JSController {
@@ -34,14 +35,5 @@ final class JSController {
         if let exception = context.exception {
             Logger.shared.log("Error loading script for \(moduleName): \(exception)", type: "Error")
         }
-    }
-}
-
-final class Logger {
-    static let shared = Logger()
-    private init() {}
-    
-    func log(_ message: String, type: String = "Info") {
-        print("[\(type)] \(message)")
     }
 }

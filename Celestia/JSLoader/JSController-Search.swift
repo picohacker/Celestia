@@ -5,6 +5,7 @@
 //  Created by Francesco on 02/06/26.
 //
 
+import Sybau
 import JavaScriptCore
 
 struct SearchItem {
