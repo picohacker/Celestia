@@ -7,18 +7,29 @@
 
 import SwiftUI
 
+private enum ModuleLoadState {
+    case loading
+    case loaded([ModuleSearchItem])
+    case failed(String)
+}
+
 struct SearchResultsView: View {
     @EnvironmentObject private var moduleStore: ModuleStore
     @Binding var selectedModuleId: String
     let query: String
     
-    @State private var results: [ModuleSearchItem] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String?
+    @State private var moduleStates: [String: ModuleLoadState] = [:]
+    
+    @State private var singleResults: [ModuleSearchItem] = []
+    @State private var singleIsLoading = false
+    @State private var singleErrorMessage: String?
+    
     @State private var isShowingModulePicker = false
     @State private var activeLoadId = UUID()
     @State private var selectedResult: ModuleSearchItem?
     @State private var hasLoaded = false
+    
+    private let stripHeight: CGFloat = 200
     
     var body: some View {
         ZStack {
@@ -26,11 +37,6 @@ struct SearchResultsView: View {
                 allModulesGrid
             } else {
                 singleModuleList
-            }
-            
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(1.2)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -49,7 +55,6 @@ struct SearchResultsView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button("All Modules") { selectModule(id: "") }
-                    
                     ForEach(moduleStore.records) { record in
                         Button(record.name) { selectModule(id: record.id) }
                     }
@@ -64,7 +69,6 @@ struct SearchResultsView: View {
         }
         .confirmationDialog("Change Source", isPresented: $isShowingModulePicker, titleVisibility: .visible) {
             Button("All Modules") { selectModule(id: "") }
-            
             ForEach(moduleStore.records) { record in
                 Button(record.name) { selectModule(id: record.id) }
             }
@@ -72,13 +76,15 @@ struct SearchResultsView: View {
         .onAppear {
             guard !hasLoaded else { return }
             hasLoaded = true
-            Task { await loadResults() }
+            triggerLoad()
         }
         .onChange(of: selectedModuleId) { _ in
-            Task { await loadResults() }
+            triggerLoad()
         }
     }
 }
+
+// MARK: - Views
 
 private extension SearchResultsView {
     var backgroundColor: Color {
@@ -88,48 +94,81 @@ private extension SearchResultsView {
     var allModulesGrid: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                statusSection
-                
-                if shouldShowResultsGrid {
-                    ForEach(groupedResults, id: \.moduleName) { group in
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(group.moduleName)
-                                .font(.headline)
-                                .padding(.horizontal, 16)
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                LazyHStack(alignment: .top, spacing: 14) {
-                                    ForEach(group.items) { entry in
-                                        Button {
-                                            selectedResult = entry
-                                        } label: {
-                                            SlimAnimeCard(title: entry.title, imageURL: entry.imageURL)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                                .padding(.horizontal, 16)
-                            }
-                        }
-                    }
+                ForEach(moduleStore.records) { record in
+                    moduleRow(for: record)
                 }
             }
             .padding(.vertical, 12)
         }
-        .opacity(isLoading ? 0 : 1)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(backgroundColor)
     }
     
+    @ViewBuilder
+    func moduleRow(for record: ModuleRecord) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(record.name)
+                .font(.headline)
+                .padding(.horizontal, 16)
+            
+            moduleRowContent(for: record)
+                .frame(height: stripHeight)
+        }
+    }
+    
+    @ViewBuilder
+    func moduleRowContent(for record: ModuleRecord) -> some View {
+        switch moduleStates[record.id] {
+        case .none, .loading:
+            ProgressView()
+                .frame(maxWidth: .infinity)
+            
+        case .loaded(let items) where items.isEmpty:
+            Text("No results")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+            
+        case .loaded(let items):
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 14) {
+                    ForEach(items) { entry in
+                        Button {
+                            selectedResult = entry
+                        } label: {
+                            SlimAnimeCard(title: entry.title, imageURL: entry.imageURL)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+            
+        case .failed(let message):
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
     var singleModuleList: some View {
         List {
-            if let errorMessage {
+            if let errorMessage = singleErrorMessage {
                 Section(selectedModuleName) {
                     Text(errorMessage)
                         .foregroundStyle(.secondary)
                 }
                 .listRowBackground(Color("SecondaryBackgroundColor"))
-            } else if results.isEmpty {
+            } else if singleIsLoading {
+                Section(selectedModuleName) {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, minHeight: stripHeight)
+                }
+                .listRowBackground(Color("SecondaryBackgroundColor"))
+            } else if singleResults.isEmpty {
                 Section(selectedModuleName) {
                     VStack(spacing: 12) {
                         emptyResultsView
@@ -144,7 +183,7 @@ private extension SearchResultsView {
                 .listRowBackground(Color("SecondaryBackgroundColor"))
             } else {
                 Section {
-                    ForEach(results) { entry in
+                    ForEach(singleResults) { entry in
                         Button {
                             selectedResult = entry
                         } label: {
@@ -173,24 +212,8 @@ private extension SearchResultsView {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .opacity(isLoading ? 0 : 1)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(backgroundColor)
-    }
-    
-    var statusSection: some View {
-        Group {
-            if let errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-            } else if results.isEmpty {
-                emptyResultsView
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 16)
-            }
-        }
     }
     
     var emptyResultsView: some View {
@@ -203,25 +226,6 @@ private extension SearchResultsView {
         }
     }
     
-    var shouldShowResultsGrid: Bool {
-        !results.isEmpty && errorMessage == nil && !isLoading
-    }
-    
-    var groupedResults: [(moduleName: String, items: [ModuleSearchItem])] {
-        let grouped = Dictionary(grouping: results) { $0.moduleName }
-        let orderedNames = moduleStore.records.map { $0.name }
-        
-        let sortedNames = grouped.keys.sorted { lhs, rhs in
-            let leftIndex = orderedNames.firstIndex(of: lhs) ?? orderedNames.count
-            let rightIndex = orderedNames.firstIndex(of: rhs) ?? orderedNames.count
-            return leftIndex == rightIndex ? lhs < rhs : leftIndex < rightIndex
-        }
-        
-        return sortedNames.map { name in
-            (moduleName: name, items: grouped[name] ?? [])
-        }
-    }
-    
     var selectedModuleName: String {
         guard !selectedModuleId.isEmpty,
               let record = moduleStore.records.first(where: { $0.id == selectedModuleId }) else {
@@ -229,35 +233,70 @@ private extension SearchResultsView {
         }
         return record.name
     }
-    
-    func loadResults() async {
+}
+
+// MARK: - Loading logic
+
+private extension SearchResultsView {
+    func triggerLoad() {
         let loadId = UUID()
         activeLoadId = loadId
-        isLoading = true
-        errorMessage = nil
         
-        do {
-            let allResults = try await moduleStore.search(keyword: query)
-            guard activeLoadId == loadId else { return }
-            
-            if selectedModuleId.isEmpty {
-                results = allResults
-            } else if let record = moduleStore.records.first(where: { $0.id == selectedModuleId }) {
-                results = allResults.filter { $0.moduleName == record.name }
-            } else {
-                results = allResults
+        if selectedModuleId.isEmpty {
+            loadAllModules(loadId: loadId)
+        } else {
+            Task { await loadSingleModule(loadId: loadId) }
+        }
+    }
+    
+    func loadAllModules(loadId: UUID) {
+        moduleStates = Dictionary(
+            uniqueKeysWithValues: moduleStore.records.map { ($0.id, .loading) }
+        )
+        
+        for record in moduleStore.records {
+            Task {
+                await loadModule(record: record, loadId: loadId)
             }
+        }
+    }
+    
+    func loadModule(record: ModuleRecord, loadId: UUID) async {
+        do {
+            let items = try await moduleStore.search(keyword: query, moduleId: record.id)
+            guard activeLoadId == loadId else { return }
+            moduleStates[record.id] = .loaded(items)
         } catch {
             guard activeLoadId == loadId else { return }
-            errorMessage = error.localizedDescription
+            moduleStates[record.id] = .failed(error.localizedDescription)
+        }
+    }
+    
+    // MARK: Single-module load
+    func loadSingleModule(loadId: UUID) async {
+        singleIsLoading = true
+        singleErrorMessage = nil
+        singleResults = []
+        
+        do {
+            guard let record = moduleStore.records.first(where: { $0.id == selectedModuleId }) else {
+                singleIsLoading = false
+                return
+            }
+            let items = try await moduleStore.search(keyword: query, moduleId: record.id)
+            guard activeLoadId == loadId else { return }
+            singleResults = items
+        } catch {
+            guard activeLoadId == loadId else { return }
+            singleErrorMessage = error.localizedDescription
         }
         
         guard activeLoadId == loadId else { return }
-        isLoading = false
+        singleIsLoading = false
     }
     
     func selectModule(id: String) {
         selectedModuleId = id
-        Task { await loadResults() }
+        triggerLoad()
     }
 }

@@ -45,7 +45,7 @@ struct HomeView: View {
                     }
                     
                     if airingAnime.isEmpty {
-                        loadingRow
+                        loadingPlaceholder(height: 168)
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(alignment: .top, spacing: 16) {
@@ -56,6 +56,7 @@ struct HomeView: View {
                             }
                             .padding(.vertical, 2)
                         }
+                        .frame(height: 168)
                     }
                     
                     Divider()
@@ -110,20 +111,16 @@ struct HomeView: View {
         }
     }
     
-    private var loadingRow: some View {
-        HStack(spacing: 12) {
-            ProgressView()
-            Text("Loading...")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    private func loadingPlaceholder(height: CGFloat) -> some View {
+        ProgressView()
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
     }
     
     private func horizontalStrip(items: [AnimeSummary]) -> some View {
         Group {
             if items.isEmpty {
-                loadingRow
+                loadingPlaceholder(height: 200)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(alignment: .top, spacing: 16) {
@@ -133,6 +130,7 @@ struct HomeView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                .frame(height: 200)
             }
         }
     }

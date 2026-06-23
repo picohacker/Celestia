@@ -75,7 +75,7 @@ final class ModuleStore: ObservableObject {
     func search(keyword: String) async throws -> [ModuleSearchItem] {
         let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return [] }
-
+        
         return try await withThrowingTaskGroup(of: [ModuleSearchItem].self) { group in
             for record in records {
                 group.addTask { [weak self] in
@@ -102,14 +102,37 @@ final class ModuleStore: ObservableObject {
             return all
         }
     }
-
+    
+    // Single module search method
+    func search(keyword: String, moduleId: String) async throws -> [ModuleSearchItem] {
+        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+        guard let record = records.first(where: { $0.id == moduleId }) else { return [] }
+        
+        let controller = try loadOrCacheController(for: record)
+        return try await withCheckedThrowingContinuation { continuation in
+            controller.fetchSearchJS(keyword: trimmed) { items in
+                let mapped = items.map { item in
+                    ModuleSearchItem(
+                        id: UUID(),
+                        moduleName: record.name,
+                        title: item.title,
+                        imageURL: item.imageUrl.isEmpty ? nil : URL(string: item.imageUrl),
+                        href: item.href
+                    )
+                }
+                continuation.resume(returning: mapped)
+            }
+        }
+    }
+    
     func fetchMediaDetail(for item: ModuleSearchItem) async throws -> ModuleMediaDetail {
         guard let record = records.first(where: { $0.name == item.moduleName }) else {
             throw ModuleStoreError.moduleNotFound(item.moduleName)
         }
-
+        
         let controller = try loadOrCacheController(for: record)
-
+        
         return try await withCheckedThrowingContinuation { continuation in
             controller.fetchDetailsJS(url: item.href) { details, episodes in
                 let detail = ModuleMediaDetail.parse(
@@ -121,30 +144,26 @@ final class ModuleStore: ObservableObject {
             }
         }
     }
-
-    private func fetchStreamUrlWithCompletion(
-        for episode: ModuleMediaEpisode,
-        moduleName: String,
-        completion: @escaping ((streams: [String]?, subtitles: [String]?, sources: [[String: Any]]?)) -> Void
-    ) {
+    
+    private func fetchStreamUrlWithCompletion(for episode: ModuleMediaEpisode, moduleName: String, completion: @escaping ((streams: [String]?, subtitles: [String]?, sources: [[String: Any]]?)) -> Void) {
         guard let record = records.first(where: { $0.name == moduleName }) else {
             Logger.shared.log("Module not found: \(moduleName)", type: "Error")
             completion((nil, nil, nil))
             return
         }
-
+        
         guard let controller = try? loadOrCacheController(for: record) else {
             Logger.shared.log("Failed to load JS controller for: \(moduleName)", type: "Error")
             completion((nil, nil, nil))
             return
         }
-
+        
         guard let href = episode.href ?? episode.downloadURL, !href.isEmpty else {
             Logger.shared.log("Episode has no href or downloadURL", type: "Error")
             completion((nil, nil, nil))
             return
         }
-
+        
         controller.fetchStreamUrlJS(episodeUrl: href, completion: completion)
     }
     

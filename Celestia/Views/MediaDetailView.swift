@@ -261,7 +261,7 @@ private extension MediaDetailView {
                 let visibleRange = clampedRange(total: detail.episodes.count)
                 ForEach(visibleRange, id: \.self) { index in
                     let episode = detail.episodes[index]
-                    let episodeImageURL = episode.imageURL ?? episodeImages[index] ?? detail.imageURL
+                    let episodeImageURL = episode.imageURL ?? episodeImages[index] ?? URL(string: "https://raw.githubusercontent.com/cranci1/Celestia/refs/heads/main/assets/banner.jpg")
                     VStack(spacing: 0) {
                         episodeRow(episode, index: index, imageURL: episodeImageURL)
                         if index < visibleRange.upperBound {
@@ -292,7 +292,7 @@ private extension MediaDetailView {
         
         return VStack(spacing: 8) {
             HStack(spacing: 12) {
-                KFImage(imageURL ?? URL(string: "https://raw.githubusercontent.com/cranci1/Celestia/refs/heads/main/assets/banner.jpg"))
+                KFImage(imageURL)
                     .resizable()
                     .aspectRatio(16/9, contentMode: .fill)
                     .frame(width: 100, height: 56)
@@ -308,17 +308,17 @@ private extension MediaDetailView {
                         Text(mapped)
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                            .lineLimit(2)
                     } else if let epTitle = episode.title, !epTitle.isEmpty {
                         Text(epTitle)
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                            .lineLimit(2)
                     } else {
                         Text(episode.displayTitle)
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                            .lineLimit(2)
                     }
                 }
                 
